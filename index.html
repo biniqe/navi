@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>길따라 달려요🚗 </title>
+  <title>길따라 달려요 🚗</title>
   
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=A3CZ70Ldoy9PdPAnpycs47JXnuBIVRCt8oUp7Ce0"></script>
 
   <style>
     :root {
-      --bg-color: #F5F6FA;
+      --bg-color: #F8FAFC;
       --primary-color: #5B46F6;
       --card-bg: #FFFFFF;
-      --text-main: #1E293B;
+      --text-main: #0F172A;
       --text-sub: #64748B;
       --border-color: #E2E8F0;
       --danger-color: #EF4444;
@@ -27,88 +27,97 @@
 
     .card {
       background: var(--card-bg); border-radius: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-      width: 100%; max-width: 540px; height: min(750px, calc(100vh - 40px));
-      display: flex; flex-direction: column; padding: 24px; gap: 16px; position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      width: 100%; max-width: 500px; height: min(780px, calc(100vh - 20px));
+      display: flex; flex-direction: column; padding: 20px; gap: 14px; position: relative;
     }
     .card.fullscreen-mode { max-width: 100%; height: 100vh; border-radius: 0; padding: 0; }
 
-    .input-container { position: relative; display: flex; flex-direction: column; gap: 6px; }
+    .input-container { position: relative; display: flex; flex-direction: column; gap: 4px; }
     .input-box {
-      display: flex; align-items: center; background-color: var(--bg-color);
-      border: 1px solid var(--border-color); border-radius: 14px; padding: 10px 14px; gap: 10px;
+      display: flex; align-items: center; background-color: #F1F5F9;
+      border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 12px; gap: 8px;
     }
     .input-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
 
     .btn-gps {
       background: var(--primary-color); color: white; border: none; padding: 6px 10px;
-      border-radius: 8px; font-size: 11px; cursor: pointer; white-space: nowrap; font-weight: bold;
+      border-radius: 8px; font-size: 11px; cursor: pointer; white-space: nowrap; font-weight: 600;
     }
 
     .search-results {
       position: absolute; top: 100%; left: 0; right: 0; background: #FFF;
-      border: 1px solid var(--border-color); border-radius: 12px; max-height: 180px;
+      border: 1px solid var(--border-color); border-radius: 12px; max-height: 160px;
       overflow-y: auto; z-index: 9999; display: none; margin-top: 4px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .search-item { padding: 10px 14px; border-bottom: 1px solid var(--bg-color); cursor: pointer; }
-    .search-item:hover { background-color: rgba(91, 70, 246, 0.05); }
+    .search-item { padding: 10px; border-bottom: 1px solid #F1F5F9; cursor: pointer; font-size: 13px; }
 
     .btn-add-wp {
       background: transparent; border: 1px dashed var(--primary-color); color: var(--primary-color);
-      padding: 10px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 13px;
+      padding: 8px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 12px;
     }
-
-    .btn-remove { background: none; border: none; color: var(--danger-color); cursor: pointer; font-size: 18px; font-weight: bold; }
+    .btn-remove { background: none; border: none; color: var(--danger-color); cursor: pointer; font-size: 16px; font-weight: bold; }
 
     .btn-submit {
       margin-top: auto; background-color: var(--primary-color); color: white;
-      border: none; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer;
+      border: none; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer;
     }
 
-    .result-view { display: none; width: 100%; height: 100%; position: relative; }
-    #map_div { width: 100%; height: 100%; }
+    /* 경로 결과 목록 메인 레이아웃 */
+    .result-view { display: none; width: 100%; height: 100%; position: relative; flex-direction: column; }
+    #map_div { width: 100%; height: 55%; border-radius: 16px; overflow: hidden; }
 
-    /* 방향 전환 TBT HUD (좌측 상단) */
-    .tbt-hud {
-      position: absolute; top: 20px; left: 20px;
-      background: rgba(15, 23, 42, 0.9); color: white;
-      padding: 14px 18px; border-radius: 20px; z-index: 30;
-      display: none; align-items: center; gap: 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3); backdrop-filter: blur(8px);
-    }
-    .tbt-icon { font-size: 32px; font-weight: bold; color: #38BDF8; }
-
-    /* 카메라/방지턱 안전 경고 HUD */
-    .safety-hud {
-      position: absolute; top: 100px; left: 20px;
-      background: rgba(239, 68, 68, 0.95); color: white;
-      padding: 12px 16px; border-radius: 16px; z-index: 30;
-      display: none; align-items: center; gap: 10px;
-      box-shadow: 0 8px 20px rgba(239,68,68,0.4);
+    /* 경로 선택 카드 리스트 */
+    .route-list {
+      height: 45%; overflow-y: auto; padding: 10px 0; display: flex; flex-direction: column; gap: 10px;
     }
 
-    .map-overlay-card {
-      position: absolute; top: 20px; left: 20px; background: #FFF;
-      padding: 16px; border-radius: 16px; z-index: 10; width: calc(100% - 40px); max-width: 440px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    .route-card {
+      background: #FFF; border: 2px solid var(--border-color); border-radius: 16px;
+      padding: 14px; display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; transition: all 0.2s ease;
     }
+    .route-card.active {
+      border-color: var(--primary-color); background-color: rgba(91, 70, 246, 0.04);
+    }
+    .route-badge {
+      display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;
+      background: #E2E8F0; color: #475569; margin-bottom: 4px;
+    }
+    .route-card.active .route-badge { background: var(--primary-color); color: #FFF; }
+    
+    .route-time { font-size: 22px; font-weight: 800; color: var(--text-main); }
+    .route-dist { font-size: 14px; color: var(--text-sub); margin-left: 6px; }
+    .route-info { font-size: 12px; color: #94A3B8; margin-top: 2px; }
 
     .btn-navi-start {
-      width: 100%; margin-top: 10px; background-color: var(--success-color);
-      color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer;
+      background-color: var(--success-color); color: white; border: none;
+      padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* HUD 스타일 */
+    .tbt-hud {
+      position: absolute; top: 16px; left: 16px; background: rgba(15, 23, 42, 0.9);
+      color: white; padding: 12px 16px; border-radius: 16px; z-index: 30; display: none;
+      align-items: center; gap: 12px; backdrop-filter: blur(8px);
+    }
+    .safety-hud {
+      position: absolute; top: 85px; left: 16px; background: rgba(239, 68, 68, 0.95);
+      color: white; padding: 10px 14px; border-radius: 12px; z-index: 30; display: none;
+      align-items: center; gap: 8px; font-size: 12px;
     }
 
     .btn-navi-stop {
-      position: absolute; top: 20px; right: 20px; z-index: 40;
+      position: absolute; top: 16px; right: 16px; z-index: 40;
       background-color: var(--danger-color); color: white; border: none;
-      padding: 12px 20px; border-radius: 30px; font-weight: 700; cursor: pointer; display: none;
+      padding: 10px 16px; border-radius: 20px; font-weight: 700; cursor: pointer; display: none;
     }
 
-    .btn-back {
-      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background-color: #FFF; border: 1px solid var(--border-color);
-      padding: 12px 24px; border-radius: 30px; font-weight: 700; cursor: pointer; z-index: 10;
+    .btn-back-header {
+      background: none; border: none; font-size: 14px; font-weight: 700; color: var(--text-sub);
+      cursor: pointer; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;
     }
   </style>
 </head>
@@ -116,57 +125,56 @@
 
   <main>
     <section class="card" id="main-card">
-      <div id="form-view" style="display: flex; flex-direction: column; gap: 12px; height: 100%; overflow-y: auto;">
-        <h2>📍 경로 탐색 (경유지 포함)</h2>
+      <div id="form-view" style="display: flex; flex-direction: column; gap: 10px; height: 100%;">
+        <h2 style="font-size: 18px;">📍 경로 탐색</h2>
         
         <div class="input-container">
-          <label style="font-size: 12px; color: var(--text-sub); font-weight: 600;">출발지</label>
+          <label style="font-size: 11px; color: var(--text-sub); font-weight: 600;">출발지</label>
           <div class="input-box">
-            📍 <input type="text" id="start-input" placeholder="출발지 검색 또는 GPS 사용">
-            <button class="btn-gps" id="btn-my-location">📍 현재 GPS</button>
+            📍 <input type="text" id="start-input" placeholder="출발지 검색 또는 GPS">
+            <button class="btn-gps" id="btn-my-location">현재 GPS</button>
           </div>
           <div class="search-results" id="start-results"></div>
         </div>
 
-        <div id="waypoint-container" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <div id="waypoint-container" style="display:flex; flex-direction:column; gap:6px;"></div>
         <button class="btn-add-wp" id="btn-add-waypoint">+ 경유지 추가</button>
 
         <div class="input-container">
-          <label style="font-size: 12px; color: var(--text-sub); font-weight: 600;">목적지</label>
+          <label style="font-size: 11px; color: var(--text-sub); font-weight: 600;">목적지</label>
           <div class="input-box">
             🏁 <input type="text" id="end-input" placeholder="목적지 검색">
           </div>
           <div class="search-results" id="end-results"></div>
         </div>
 
-        <button class="btn-submit" id="btn-start">경로 탐색 시작</button>
+        <button class="btn-submit" id="btn-start">경로 검색</button>
       </div>
 
       <div class="result-view" id="result-view">
+        <button class="btn-back-header" id="btn-back">← 경로 다시 설정</button>
+        
         <div class="tbt-hud" id="tbt-hud">
-          <div class="tbt-icon" id="tbt-icon">↲</div>
+          <div style="font-size:28px; color:#38BDF8;" id="tbt-icon">↲</div>
           <div>
-            <div id="tbt-dist" style="font-size: 20px; font-weight: 800;">300m</div>
-            <div id="tbt-text" style="font-size: 12px; opacity: 0.8;">좌회전 하세요</div>
+            <div id="tbt-dist" style="font-size: 18px; font-weight: 800;">300m</div>
+            <div id="tbt-text" style="font-size: 11px; opacity: 0.8;">좌회전 하세요</div>
           </div>
         </div>
 
         <div class="safety-hud" id="safety-hud">
-          <span style="font-size: 22px;">📷</span>
+          <span>📷</span>
           <div>
-            <div id="safety-title" style="font-weight: 800; font-size: 13px;">과속 단속 카메라</div>
-            <div id="safety-sub" style="font-size: 11px;">전방 300m (시속 60km/h 이하)</div>
+            <div id="safety-title" style="font-weight: 800;">과속 단속 (60km/h)</div>
+            <div id="safety-sub">전방 300m 지점</div>
           </div>
         </div>
 
-        <div class="map-overlay-card" id="route-info-card">
-          <p id="result-summary" style="font-size: 13px; font-weight: 700;">경로 탐색 중...</p>
-          <button class="btn-navi-start" id="btn-start-navigation">▶ 웹 길안내 시작</button>
-        </div>
-
         <button class="btn-navi-stop" id="btn-stop-navigation">⏹ 길안내 종료</button>
+
         <div id="map_div"></div>
-        <button class="btn-back" id="btn-back">← 다시 설정</button>
+
+        <div class="route-list" id="route-list"></div>
       </div>
     </section>
   </main>
@@ -182,8 +190,8 @@
     let guidePoints = [];
     let carMarker = null;
     let naviInterval = null;
+    let routeOptionsData = [];
 
-    // 음성 안내 (TTS)
     function speak(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -193,19 +201,15 @@
       }
     }
 
-    // 현재 실제 GPS 위치 수신
     document.getElementById('btn-my-location').addEventListener('click', () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
-          const lat = pos.coords.latitude;
-          const lon = pos.coords.longitude;
-          routeCoords.start = { lat, lon, name: "현재 위치 (GPS)" };
+          routeCoords.start = { lat: pos.coords.latitude, lon: pos.coords.longitude, name: "현재 위치 (GPS)" };
           document.getElementById('start-input').value = "📍 현재 위치 (실시간 GPS)";
         }, () => alert("GPS 위치 권한을 허용해 주세요."));
       }
     });
 
-    // POI 검색
     function searchPOI(keyword, resultId, onSelect) {
       if (!keyword || keyword.trim().length < 2) return;
       $.ajax({
@@ -238,11 +242,9 @@
       document.getElementById('end-input').value = end.name; routeCoords.end = end;
     });
 
-    // 경유지 추가 기능 복원
     const wpContainer = document.getElementById('waypoint-container');
     document.getElementById('btn-add-waypoint').addEventListener('click', () => {
       if (document.querySelectorAll('.wp-item').length >= 5) return alert("경유지는 최대 5개까지 가능합니다.");
-      
       const idNum = Date.now();
       const div = document.createElement('div');
       div.className = 'input-container wp-item';
@@ -253,16 +255,13 @@
         </div>
         <div class="search-results" id="wp-results-${idNum}"></div>
       `;
-
       div.querySelector('.btn-remove').onclick = () => div.remove();
       wpContainer.appendChild(div);
 
       document.getElementById(`wp-input-${idNum}`).oninput = (e) => {
         searchPOI(e.target.value, `wp-results-${idNum}`, (coords) => {
           document.getElementById(`wp-input-${idNum}`).value = coords.name;
-          div.dataset.lat = coords.lat;
-          div.dataset.lon = coords.lon;
-          div.dataset.name = coords.name;
+          div.dataset.lat = coords.lat; div.dataset.lon = coords.lon;
         });
       };
     });
@@ -270,95 +269,137 @@
     document.getElementById('btn-start').onclick = () => {
       if (!routeCoords.start || !routeCoords.end) return alert("출발지와 목적지를 모두 지정해 주세요.");
       document.getElementById('form-view').style.display = 'none';
-      document.getElementById('result-view').style.display = 'block';
-      document.getElementById('main-card').classList.add('fullscreen-mode');
-      findRoute();
+      document.getElementById('result-view').style.display = 'flex';
+      fetchAllRoutes();
     };
 
-    function findRoute() {
+    // 경로 옵션 생성 및 데이터 연동
+    function fetchAllRoutes() {
       const startPt = new Tmapv2.LatLng(routeCoords.start.lat, routeCoords.start.lon);
       if (!map) {
-        map = new Tmapv2.Map("map_div", { center: startPt, width: "100%", height: "100%", zoom: 16 });
-      } else {
-        map.setCenter(startPt);
+        map = new Tmapv2.Map("map_div", { center: startPt, width: "100%", height: "100%", zoom: 14 });
       }
 
-      markers.forEach(m => m.setMap(null));
-      polylines.forEach(p => p.setMap(null));
-      markers = []; polylines = []; fullRoutePath = []; guidePoints = [];
+      // 4가지 대표 추천 경로 옵션 정의
+      const searchOptionTypes = [
+        { id: 0, title: "실시간 추천", option: "0" },
+        { id: 1, title: "거리 우선", option: "2" },
+        { id: 2, title: "큰길 우선", option: "1" },
+        { id: 3, title: "무료 우선", option: "3" }
+      ];
 
-      // 출발/목적지 마커
-      markers.push(new Tmapv2.Marker({ position: startPt, icon: "http://tmapapi.sktelecom.com/upload/tmap/marker/pin_r_m_s.png", map: map }));
-      markers.push(new Tmapv2.Marker({ position: new Tmapv2.LatLng(routeCoords.end.lat, routeCoords.end.lon), icon: "http://tmapapi.sktelecom.com/upload/tmap/marker/pin_r_m_e.png", map: map }));
-
-      // 경유지 빨간 점(Red Dot) 마커 복원
       const wpElements = document.querySelectorAll('.wp-item');
       let passList = [];
-      const redDotIcon = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20">
-          <circle cx="10" cy="10" r="7" fill="#EF4444" stroke="#FFFFFF" stroke-width="3"/>
-        </svg>
-      `);
+      wpElements.forEach(el => { if (el.dataset.lat && el.dataset.lon) passList.push(`${el.dataset.lon},${el.dataset.lat}`); });
 
-      wpElements.forEach(el => {
-        if (el.dataset.lat && el.dataset.lon) {
-          passList.push(`${el.dataset.lon},${el.dataset.lat}`);
-          markers.push(new Tmapv2.Marker({
-            position: new Tmapv2.LatLng(parseFloat(el.dataset.lat), parseFloat(el.dataset.lon)),
-            icon: redDotIcon, iconSize: new Tmapv2.Size(18, 18), map: map
-          }));
-        }
+      const listContainer = document.getElementById('route-list');
+      listContainer.innerHTML = '';
+      routeOptionsData = [];
+
+      let requests = searchOptionTypes.map(opt => {
+        return $.ajax({
+          method: "POST",
+          url: "https://apis.openapi.sk.com/tmap/routes?version=1&format=json",
+          data: {
+            appKey: TMAP_API_KEY,
+            startX: routeCoords.start.lon, startY: routeCoords.start.lat,
+            endX: routeCoords.end.lon, endY: routeCoords.end.lat,
+            passList: passList.join("_"),
+            searchOption: opt.option,
+            reqCoordType: "WGS84GEO", resCoordType: "WGS84GEO"
+          }
+        });
       });
 
-      $.ajax({
-        method: "POST",
-        url: "https://apis.openapi.sk.com/tmap/routes?version=1&format=json",
-        data: {
-          appKey: TMAP_API_KEY,
-          startX: routeCoords.start.lon, startY: routeCoords.start.lat,
-          endX: routeCoords.end.lon, endY: routeCoords.end.lat,
-          passList: passList.join("_"),
-          reqCoordType: "WGS84GEO", resCoordType: "WGS84GEO"
-        },
-        success: (res) => {
-          const features = res.features;
-          document.getElementById('result-summary').innerText = 
-            `${routeCoords.start.name} → ${routeCoords.end.name} (${(features[0].properties.totalDistance/1000).toFixed(1)}km)`;
+      Promise.all(requests).then(responses => {
+        responses.forEach((res, index) => {
+          const summary = res.features[0].properties;
+          const distKm = (summary.totalDistance / 1000).toFixed(1);
+          const timeMin = Math.round(summary.totalTime / 60);
+          const taxiFare = Math.round(summary.totalDistance * 1.1 + 3800).toLocaleString();
+          const fuelFare = Math.round(summary.totalDistance * 180).toLocaleString();
 
-          features.forEach(f => {
+          const routePath = [];
+          res.features.forEach(f => {
             if (f.geometry.type === "LineString") {
-              let seg = [];
-              f.geometry.coordinates.forEach(c => {
-                let p = new Tmapv2.LatLng(c[1], c[0]);
-                seg.push(p); fullRoutePath.push(p);
-              });
-              polylines.push(new Tmapv2.Polyline({ path: seg, strokeColor: "#5B46F6", strokeWeight: 6, map: map }));
+              f.geometry.coordinates.forEach(c => routePath.push(new Tmapv2.LatLng(c[1], c[0])));
             }
           });
 
-          injectSafetyPoints();
+          routeOptionsData.push({
+            id: index,
+            title: searchOptionTypes[index].title,
+            time: timeMin,
+            dist: distKm,
+            taxi: taxiFare,
+            fuel: fuelFare,
+            path: routePath
+          });
+        });
 
-          // 지도 중심을 실시간 출발지로 즉시 고정
-          map.setCenter(fullRoutePath[0]);
-          map.setZoom(16);
-        }
+        renderRouteCards();
+        selectRoute(0); // 기본 첫번째 옵션 선택
       });
     }
 
-    function injectSafetyPoints() {
-      if (fullRoutePath.length > 20) {
-        guidePoints.push({ idx: 15, type: "CAMERA", speed: 60, dist: 300, msg: "전방 300m 앞 제한속도 60km 과속 단속 구간입니다." });
-        guidePoints.push({ idx: 40, type: "ZONE", speed: 70, len: 2.5, msg: "전방에서 2.5km 구간 단속이 시작됩니다." });
-        guidePoints.push({ idx: 70, type: "SCHOOL", speed: 30, msg: "어린이 보호구역입니다. 서행하세요." });
-      }
+    function renderRouteCards() {
+      const container = document.getElementById('route-list');
+      container.innerHTML = '';
+
+      routeOptionsData.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = `route-card ${idx === 0 ? 'active' : ''}`;
+        card.id = `route-card-${idx}`;
+        card.onclick = () => selectRoute(idx);
+
+        card.innerHTML = `
+          <div>
+            <span class="route-badge">${idx + 1} ${item.title}</span>
+            <div>
+              <span class="route-time">${item.time}<span style="font-size:15px; font-weight:normal;">분</span></span>
+              <span class="route-dist">${item.dist}km</span>
+            </div>
+            <div class="route-info">택시비 약 ${item.taxi}원 · 주유비 ${item.fuel}원</div>
+          </div>
+          <button class="btn-navi-start" onclick="startNavigation(${idx}); event.stopPropagation();">안내시작</button>
+        `;
+        container.appendChild(card);
+      });
     }
 
-    // 길안내 시작
-    document.getElementById('btn-start-navigation').onclick = () => {
-      document.getElementById('route-info-card').style.display = 'none';
+    function selectRoute(index) {
+      document.querySelectorAll('.route-card').forEach(c => c.classList.remove('active'));
+      const activeCard = document.getElementById(`route-card-${index}`);
+      if(activeCard) activeCard.classList.add('active');
+
+      const targetRoute = routeOptionsData[index];
+      fullRoutePath = targetRoute.path;
+
+      // 기존 선 및 마커 삭제 후 재그리기
+      polylines.forEach(p => p.setMap(null));
+      markers.forEach(m => m.setMap(null));
+      polylines = []; markers = [];
+
+      markers.push(new Tmapv2.Marker({ position: fullRoutePath[0], icon: "http://tmapapi.sktelecom.com/upload/tmap/marker/pin_r_m_s.png", map: map }));
+      markers.push(new Tmapv2.Marker({ position: fullRoutePath[fullRoutePath.length - 1], icon: "http://tmapapi.sktelecom.com/upload/tmap/marker/pin_r_m_e.png", map: map }));
+
+      const line = new Tmapv2.Polyline({ path: fullRoutePath, strokeColor: "#5B46F6", strokeWeight: 6, map: map });
+      polylines.push(line);
+
+      let bounds = new Tmapv2.LatLngBounds();
+      fullRoutePath.forEach(pt => bounds.extend(pt));
+      map.panToBounds(bounds);
+    }
+
+    function startNavigation(index) {
+      selectRoute(index);
+
+      document.getElementById('route-list').style.display = 'none';
+      document.getElementById('map_div').style.height = '100%';
       document.getElementById('btn-back').style.display = 'none';
       document.getElementById('btn-stop-navigation').style.display = 'block';
       document.getElementById('tbt-hud').style.display = 'flex';
+      document.getElementById('main-card').classList.add('fullscreen-mode');
 
       let step = 0;
       if (carMarker) carMarker.setMap(null);
@@ -369,10 +410,9 @@
         map: map
       });
 
-      // 운전자 3D 시점 줌인 및 현재 출발 위치 고정
       map.setZoom(18);
       map.setCenter(fullRoutePath[0]);
-      speak("실시간 내비게이션 길안내를 시작합니다.");
+      speak(`${routeOptionsData[index].title} 경로로 안내를 시작합니다.`);
 
       naviInterval = setInterval(() => {
         if (step >= fullRoutePath.length) {
@@ -383,41 +423,30 @@
 
         const curPt = fullRoutePath[step];
         carMarker.setPosition(curPt);
-        map.panTo(curPt); // 현재 차 위치를 지속 추적
+        map.panTo(curPt);
 
-        // TBT 방향 알림
         if (step + 10 < fullRoutePath.length) {
           let dist = Math.round((fullRoutePath.length - step) * 8);
           if (dist <= 1000) {
             document.getElementById('tbt-dist').innerText = `${dist}m`;
             document.getElementById('tbt-icon').innerText = (step % 30 < 15) ? "↲" : "↳";
-            document.getElementById('tbt-text').innerText = (step % 30 < 15) ? "좌회전" : "우회전";
+            document.getElementById('tbt-text').innerText = (step % 30 < 15) ? "좌회전 하세요" : "우회전 하세요";
           }
         }
 
-        // 안전단속 알림
-        guidePoints.forEach(g => {
-          if (g.idx && Math.abs(g.idx - step) === 3) {
-            const hud = document.getElementById('safety-hud');
-            hud.style.display = 'flex';
-            document.getElementById('safety-title').innerText = `${g.type === 'CAMERA' ? '과속단속' : '주의구간'} (${g.speed}km/h)`;
-            document.getElementById('safety-sub').innerText = g.msg;
-            speak(g.msg);
-            setTimeout(() => { hud.style.display = 'none'; }, 4000);
-          }
-        });
-
         step += 1;
       }, 300);
-    };
+    }
 
     document.getElementById('btn-stop-navigation').onclick = () => {
       clearInterval(naviInterval);
-      document.getElementById('route-info-card').style.display = 'block';
+      document.getElementById('route-list').style.display = 'flex';
+      document.getElementById('map_div').style.height = '55%';
       document.getElementById('btn-back').style.display = 'block';
       document.getElementById('btn-stop-navigation').style.display = 'none';
       document.getElementById('tbt-hud').style.display = 'none';
       document.getElementById('safety-hud').style.display = 'none';
+      document.getElementById('main-card').classList.remove('fullscreen-mode');
       if (carMarker) carMarker.setMap(null);
       speak("길안내를 종료합니다.");
     };
@@ -425,7 +454,6 @@
     document.getElementById('btn-back').onclick = () => {
       document.getElementById('result-view').style.display = 'none';
       document.getElementById('form-view').style.display = 'flex';
-      document.getElementById('main-card').classList.remove('fullscreen-mode');
     };
   </script>
 </body>
